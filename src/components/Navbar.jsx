@@ -15,12 +15,12 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { name: 'Home', to: 'home' },
-    { name: 'About', to: 'about' },
-    { name: 'Services', to: 'services' },
-    { name: 'Results', to: 'results' },
-    { name: 'Reviews', to: 'reviews' },
-    { name: 'Contact', to: 'contact' },
+    { name: 'Home', to: 'home', isScroll: true },
+    { name: 'About', to: 'about', isScroll: true },
+    { name: 'Services', to: 'services', isScroll: true },
+    { name: 'Results', to: 'results', isScroll: true },
+    { name: 'Reviews', to: 'reviews', isScroll: true },
+    { name: 'Contact', to: 'contact', isScroll: true },
   ];
 
   const headerStyle = {
@@ -63,6 +63,7 @@ const Navbar = () => {
     fontWeight: 500,
     color: 'var(--color-text)',
     transition: 'color 0.2s',
+    textDecoration: 'none'
   };
 
   const mobileMenuStyle = {
@@ -89,19 +90,24 @@ const Navbar = () => {
         {/* Desktop Nav */}
         <nav style={desktopNavStyle} className="desktop-nav">
           {navLinks.map((link) => (
-            <Link 
-              key={link.name} 
-              to={link.to} 
-              spy={true} 
-              smooth={true} 
-              offset={-80} 
-              duration={500}
-              style={navLinkStyle}
-              activeClass="text-primary"
-            >
-              {link.name}
-            </Link>
+            link.isScroll ? (
+              <Link 
+                key={link.name} 
+                to={link.to} 
+                spy={true} 
+                smooth={true} 
+                offset={-80} 
+                duration={500}
+                style={navLinkStyle}
+                activeClass="text-primary"
+              >
+                {link.name}
+              </Link>
+            ) : (
+              <a key={link.name} href={link.to} style={navLinkStyle}>{link.name}</a>
+            )
           ))}
+          <a href="/admin" style={navLinkStyle} className="font-semibold text-emerald-700">Admin</a>
           <Link to="booking" smooth={true} offset={-80} duration={500} className="btn btn-primary">
             <Calendar size={18} />
             Book Appointment
@@ -116,19 +122,24 @@ const Navbar = () => {
         {/* Mobile Nav */}
         <div style={mobileMenuStyle}>
           {navLinks.map((link) => (
-            <Link 
-              key={link.name} 
-              to={link.to} 
-              spy={true} 
-              smooth={true} 
-              offset={-80} 
-              duration={500}
-              style={navLinkStyle}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {link.name}
-            </Link>
+            link.isScroll ? (
+              <Link 
+                key={link.name} 
+                to={link.to} 
+                spy={true} 
+                smooth={true} 
+                offset={-80} 
+                duration={500}
+                style={navLinkStyle}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {link.name}
+              </Link>
+            ) : (
+              <a key={link.name} href={link.to} style={navLinkStyle} onClick={() => setMobileMenuOpen(false)}>{link.name}</a>
+            )
           ))}
+          <a href="/admin" style={navLinkStyle} className="font-semibold text-emerald-700">Admin</a>
           <Link to="booking" smooth={true} offset={-80} duration={500} className="btn btn-primary" style={{justifyContent: 'center'}} onClick={() => setMobileMenuOpen(false)}>
             <Calendar size={18} />
             Book Appointment

@@ -64,7 +64,44 @@ async def health():
 @api_router.post("/appointments", response_model=Appointment)
 async def create_appointment(payload: AppointmentCreate):
     appt = Appointment(**payload.model_dump())
+    
+    # Save to local website DB
     await db.appointments.insert_one(appt.model_dump())
+    
+    # Also save to DPMS database
+    dpms_db = client["dpms"]
+    
+    # 1. Find or create patient in DPMS
+    existing_patient = await dpms_db.patients.find_one({"whatsapp": payload.phone})
+    if existing_patient:
+        patient_id = existing_patient.get("patient_id")
+    else:
+        patient_id = f"WEB-{str(uuid.uuid4())[:8]}"
+        new_patient = {
+            "patient_id": patient_id,
+            "patient_type": "online",
+            "full_name": payload.full_name,
+            "whatsapp": payload.phone,
+            "email": payload.email,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "visits": []
+        }
+        await dpms_db.patients.insert_one(new_patient)
+        
+    # 2. Create appointment in DPMS
+    dpms_appt = {
+        "patient_id": patient_id,
+        "patient_name": payload.full_name, # helper for UI
+        "date_time": payload.preferred_date or "Pending",
+        "therapist": "Website Booking",
+        "treatment": payload.treatment,
+        "message": payload.message,
+        "status": "scheduled",
+        "created_at": datetime.now(timezone.utc)
+    }
+    await dpms_db.appointments.insert_one(dpms_appt)
+    
     return appt
 
 

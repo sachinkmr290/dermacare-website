@@ -142,6 +142,7 @@ function Navbar() {
     { href: "#testimonials", label: "Reviews" },
     { href: "#faq", label: "FAQ" },
     { href: "#contact", label: "Contact" },
+    { href: "/admin", label: "Admin" },
   ];
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/75 border-b border-slate-200/60">
