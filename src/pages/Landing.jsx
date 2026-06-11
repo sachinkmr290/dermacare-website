@@ -189,70 +189,106 @@ function Navbar() {
 }
 
 // ====== HERO ======
+const SLIDER_IMAGES = [
+  "/slider-1.png",
+  "/slider-2.png",
+  "/slider-3.png",
+  "/slider-4.png",
+  "/slider-5.png",
+  "/slider-6.png",
+  "/slider-7.png"
+];
+
 function Hero() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % SLIDER_IMAGES.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <section id="top" className="relative overflow-hidden hero-grid-bg">
-      <div className="spotlight bg-emerald-400 w-[600px] h-[600px] -top-40 -left-40" />
-      <div className="spotlight bg-blue-400 w-[500px] h-[500px] top-20 -right-20" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-24 md:pt-24 md:pb-32 grid lg:grid-cols-12 gap-12 items-center relative">
-        <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} className="lg:col-span-7">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/70 backdrop-blur-md border border-emerald-100 px-4 py-1.5 text-xs tracking-[0.2em] uppercase text-emerald-700 shadow-sm" data-testid="hero-eyebrow">
-            <Sparkles className="h-3.5 w-3.5" /> Premium Hair, Skin & Therapy in Bulandshahr
+    <section 
+      id="top" 
+      className="relative w-full h-[85vh] min-h-[600px] flex items-center overflow-hidden bg-slate-900"
+    >
+      {/* Background Slider with Ken Burns Effect */}
+      {SLIDER_IMAGES.map((img, idx) => (
+        <motion.div
+          key={idx}
+          className="absolute inset-0 w-full h-full"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: currentSlide === idx ? 1 : 0 }}
+          transition={{ duration: 1.2, ease: "easeInOut" }}
+          style={{ zIndex: currentSlide === idx ? 1 : 0 }}
+        >
+          <motion.img
+            src={img}
+            alt={`Clinic Slider ${idx + 1}`}
+            className="w-full h-full object-cover"
+            initial={{ scale: 1.0 }}
+            animate={{ scale: currentSlide === idx ? 1.08 : 1.0 }}
+            transition={{ duration: 6, ease: "linear" }}
+          />
+        </motion.div>
+      ))}
+
+      {/* Dark Overlay for Text Readability */}
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-900/60 to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-black/10 z-10 pointer-events-none" />
+
+      {/* Overlay Content */}
+      <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center h-full pt-16">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="max-w-3xl"
+        >
+          <span className="inline-flex items-center gap-2 rounded-full bg-emerald-900/40 backdrop-blur-md border border-emerald-400/30 px-4 py-1.5 text-xs tracking-[0.2em] uppercase text-emerald-100 shadow-sm">
+            <Sparkles className="h-3.5 w-3.5" /> Premium Care in Bulandshahr
           </span>
-          <h1 className="mt-6 text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-slate-900 leading-[1.05]" data-testid="hero-headline">
-            Restore Your Hair. <span className="text-gradient">Revive Your Skin.</span>
-            <br /> Regain Your Confidence.
+          <h1 className="mt-6 text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1]">
+            Advanced Skin, Hair & Wellness Care
           </h1>
-          <p className="mt-6 text-lg text-slate-600 max-w-2xl leading-relaxed" data-testid="hero-subheadline">
-            Advanced Hair Loss, PRP, Cupping Therapy, Acne & Skin Treatments by <span className="font-medium text-slate-900">Dr. Danish Chauhan</span> — BAMS, MD (Cupping Therapy).
+          <p className="mt-6 text-lg sm:text-xl text-slate-200 max-w-2xl leading-relaxed">
+            Expert treatments for hair restoration, acne, pigmentation, physiotherapy, and holistic wellness.
           </p>
 
-          <div className="mt-7 flex flex-wrap gap-3">
-            {["Experienced Care", "Personalized Plans", "Modern Therapies", "Affordable Consultation"].map((b) => (
-              <span key={b} className="inline-flex items-center gap-2 rounded-full bg-white border border-slate-200 px-3.5 py-1.5 text-sm text-slate-700 shadow-sm" data-testid={`hero-badge-${b.toLowerCase().replace(/\s+/g, '-')}`}>
-                <Check className="h-4 w-4 text-emerald-600" /> {b}
-              </span>
-            ))}
-          </div>
-
-          <div className="mt-8 flex flex-col sm:flex-row gap-3">
+          <div className="mt-10 flex flex-col sm:flex-row gap-4">
             <a href="#booking">
-              <Button size="lg" className="btn-gradient text-white rounded-full px-8 h-12 shadow-luxe hover:-translate-y-0.5 transition-transform" data-testid="hero-book-appointment-button">
-                <CalendarIcon className="h-4 w-4 mr-2" /> Book Appointment
+              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-8 h-14 text-base font-semibold shadow-[0_0_20px_rgba(5,150,105,0.4)] border-0 w-full sm:w-auto transition-transform hover:scale-105">
+                Book Consultation
               </Button>
             </a>
-            <a href={`tel:${PHONE}`}>
-              <Button variant="outline" size="lg" className="rounded-full px-8 h-12 border-slate-300 hover:border-emerald-600 hover:text-emerald-700" data-testid="hero-call-now-button">
-                <Phone className="h-4 w-4 mr-2" /> Call Now
+            <a href="#services">
+              <Button variant="outline" size="lg" className="rounded-full px-8 h-14 text-base font-semibold border-white/40 text-white hover:bg-white/10 hover:text-white bg-white/5 backdrop-blur-md w-full sm:w-auto transition-transform hover:scale-105">
+                View Treatments
               </Button>
             </a>
           </div>
-
-          <div className="mt-10 grid grid-cols-3 gap-6 max-w-xl">
-            <div className="flex items-start gap-3"><Phone className="h-5 w-5 text-emerald-600 mt-0.5" /><div><div className="text-xs text-slate-500 uppercase tracking-wider">Call</div><div className="text-sm font-medium text-slate-900">{PHONE}</div></div></div>
-            <div className="flex items-start gap-3"><Clock className="h-5 w-5 text-emerald-600 mt-0.5" /><div><div className="text-xs text-slate-500 uppercase tracking-wider">Hours</div><div className="text-sm font-medium text-slate-900">Mon–Sat<br/>10AM – 5PM</div></div></div>
-            <div className="flex items-start gap-3"><MapPin className="h-5 w-5 text-emerald-600 mt-0.5" /><div><div className="text-xs text-slate-500 uppercase tracking-wider">Visit</div><div className="text-sm font-medium text-slate-900">Bulandshahr, UP</div></div></div>
-          </div>
         </motion.div>
+      </div>
 
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.15 }} className="lg:col-span-5 relative">
-          <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden shadow-luxe">
-            <img src={IMG.doctor} alt="Dr. Danish Chauhan" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-transparent to-transparent" />
-            <div className="absolute bottom-5 left-5 right-5 glass rounded-2xl p-4 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full btn-gradient flex items-center justify-center text-white font-bold">DC</div>
-              <div className="flex-1">
-                <div className="text-sm font-semibold text-slate-900 text-white">Dr. Danish Chauhan</div>
-                <div className="text-xs text-slate-200">BAMS · MD (Cupping Therapy)</div>
-              </div>
-              <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white border-0">Available</Badge>
-            </div>
-          </div>
-        </motion.div>
+      {/* Slider Navigation Dots */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 z-20">
+        {SLIDER_IMAGES.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => setCurrentSlide(idx)}
+            className={`h-1.5 rounded-full transition-all duration-500 ${
+              currentSlide === idx ? "bg-white w-8" : "bg-white/40 hover:bg-white/60 w-3"
+            }`}
+            aria-label={`Go to slide ${idx + 1}`}
+          />
+        ))}
       </div>
     </section>
   );
 }
+
 
 // ====== ABOUT DOCTOR ======
 function AboutDoctor() {
@@ -260,8 +296,8 @@ function AboutDoctor() {
     <section id="about" className="py-24 md:py-32 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-12 gap-12 items-center">
         <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="lg:col-span-5">
-          <div className="relative rounded-[2rem] overflow-hidden aspect-[4/5] shadow-luxe">
-            <img src={IMG.clinic} alt="Clinic interior" className="w-full h-full object-cover" />
+          <div className="relative rounded-[2rem] overflow-hidden aspect-[4/5] img-depth hero-img-3d">
+            <img src={IMG.doctor} alt="Dr. Danish Chauhan" className="w-full h-full object-cover" />
           </div>
         </motion.div>
         <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="lg:col-span-7">
@@ -326,8 +362,9 @@ function Services() {
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.5, delay: i * 0.05 }}
-                      className="glass rounded-2xl p-6 hover:-translate-y-1 hover:shadow-luxe transition-all duration-300"
+                      className="card-3d"
                     >
+                    <div className="glass-3d rounded-2xl p-6 card-3d-inner">
                       <div className="flex items-start justify-between">
                         <h4 className="text-lg font-semibold text-slate-900">{s.name}</h4>
                         <ChevronRight className="h-4 w-4 text-emerald-600 mt-1" />
@@ -338,7 +375,7 @@ function Services() {
                         <div><span className="text-emerald-700 font-semibold">Process:</span> <span className="text-slate-600">{s.process}</span></div>
                         <div><span className="text-emerald-700 font-semibold">Results:</span> <span className="text-slate-600">{s.results}</span></div>
                       </div>
-                    </motion.div>
+                    </div></motion.div>
                   ))}
                 </div>
               </div>
@@ -400,11 +437,12 @@ function WhyChooseUs() {
         <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {WHY.map(({ icon: Icon, title, desc }, i) => (
             <motion.div key={title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.05 }}
-              className="bg-white rounded-2xl p-6 border border-slate-200 hover:shadow-luxe hover:-translate-y-1 transition-all">
-              <div className="h-11 w-11 rounded-xl btn-gradient text-white flex items-center justify-center"><Icon className="h-5 w-5" /></div>
+              className="card-3d">
+              <div className="bg-white rounded-2xl p-6 border border-slate-200 card-3d-inner gradient-border">
+              <div className="h-11 w-11 rounded-xl btn-gradient text-white flex items-center justify-center icon-3d"><Icon className="h-5 w-5" /></div>
               <h3 className="mt-5 text-lg font-semibold text-slate-900">{title}</h3>
               <p className="mt-2 text-slate-600 text-sm leading-relaxed">{desc}</p>
-            </motion.div>
+              </div></motion.div>
           ))}
         </div>
       </div>
@@ -467,7 +505,7 @@ function TestimonialsSection() {
         
         <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {TESTIMONIALS.map((t, i) => (
-            <div key={i} className="glass rounded-2xl p-6 border border-slate-200">
+            <div key={i} className="glass-3d rounded-2xl p-6 gradient-border card-3d"><div className="card-3d-inner">
               <div className="flex items-center gap-1 mb-4">
                 {Array.from({ length: 5 }).map((_, idx) => (
                   <Star key={idx} className="h-4 w-4 text-amber-400 fill-amber-400" />
@@ -478,7 +516,7 @@ function TestimonialsSection() {
                 <div className="font-semibold text-slate-900">{t.name}</div>
                 <div className="text-xs text-emerald-700 font-medium bg-emerald-50 px-2 py-1 rounded">{t.treatment}</div>
               </div>
-            </div>
+            </div></div>
           ))}
         </div>
       </div>
@@ -498,7 +536,7 @@ function ProcessSection() {
         <div className="mt-16 grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
           {PROCESS.map((p, i) => (
             <div key={p.step} className="relative group">
-              <div className="text-5xl font-bold text-slate-100 group-hover:text-emerald-50 transition-colors">{p.step}</div>
+              <div className="text-5xl font-bold text-emerald-200 step-3d group-hover:text-emerald-300 transition-colors">{p.step}</div>
               <div className="mt-4 font-semibold text-slate-900 text-lg">{p.title}</div>
               <p className="mt-2 text-sm text-slate-600">{p.desc}</p>
             </div>
@@ -587,7 +625,7 @@ function BookingSection() {
           </div>
         </div>
 
-        <div className="glass rounded-[2rem] p-8 border border-slate-200 shadow-luxe bg-slate-50/50">
+        <div className="glass-3d rounded-[2rem] p-8 gradient-border bg-slate-50/50">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-2 gap-5">
               <div className="space-y-2">
@@ -622,7 +660,7 @@ function BookingSection() {
               <Label>Message</Label>
               <Textarea value={formData.message} onChange={e=>setFormData({...formData, message: e.target.value})} placeholder="Any specific concerns?" rows={3} />
             </div>
-            <Button disabled={loading} type="submit" className="w-full btn-gradient text-white h-12 text-lg rounded-full shadow-md">
+            <Button disabled={loading} type="submit" className="w-full btn-gradient text-white h-12 text-lg rounded-full btn-3d">
               {loading ? "Sending..." : "Request Appointment"}
             </Button>
           </form>
@@ -682,10 +720,10 @@ function Footer() {
 function FloatingActions() {
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
-      <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noreferrer" className="bg-[#25D366] text-white p-3.5 rounded-full shadow-lg hover:-translate-y-1 transition-transform flex items-center justify-center" aria-label="WhatsApp">
+      <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noreferrer" className="bg-[#25D366] text-white p-3.5 rounded-full fab-3d pulse-glow flex items-center justify-center" aria-label="WhatsApp">
         <MessageCircle size={28} />
       </a>
-      <a href={`tel:${PHONE}`} className="bg-slate-900 text-white p-3.5 rounded-full shadow-lg hover:-translate-y-1 transition-transform flex items-center justify-center" aria-label="Call">
+      <a href={`tel:${PHONE}`} className="bg-slate-900 text-white p-3.5 rounded-full fab-3d flex items-center justify-center" aria-label="Call">
         <Phone size={28} />
       </a>
     </div>
