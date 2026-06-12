@@ -13,9 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+
 import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger,
 } from "@/components/ui/accordion";
@@ -576,16 +574,23 @@ function FAQSection() {
 
 // ====== BOOKING & CONTACT ======
 function BookingSection() {
-  const [formData, setFormData] = useState({ full_name: "", phone: "", email: "", treatment: "", preferred_date: "", message: "" });
+  const [formData, setFormData] = useState({ full_name: "", phone: "", email: "", age: "", gender: "", address: "", consultation_type: "online", treatment: "", preferred_date: "", message: "" });
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    
+    const payload = { ...formData };
+    if (!payload.email) payload.email = null;
+    if (!payload.preferred_date) payload.preferred_date = null;
+    if (!payload.message) payload.message = null;
+    payload.age = parseInt(payload.age, 10);
+
     try {
-      await axios.post(`${API}/appointments`, formData);
-      toast.success("Appointment Request Sent! We will call you shortly.");
-      setFormData({ full_name: "", phone: "", email: "", treatment: "", preferred_date: "", message: "" });
+      await axios.post(`${API}/appointments`, payload);
+      toast.success("Your appointment has been booked successfully.");
+      setFormData({ full_name: "", phone: "", email: "", age: "", gender: "", address: "", consultation_type: "online", treatment: "", preferred_date: "", message: "" });
     } catch (err) {
       toast.error("Failed to send request. Please call us directly.");
     } finally {
@@ -638,23 +643,81 @@ function BookingSection() {
                 <Input required value={formData.phone} onChange={e=>setFormData({...formData, phone: e.target.value})} placeholder="Your mobile number" />
               </div>
             </div>
+            <div className="grid grid-cols-3 gap-5">
+              <div className="space-y-2">
+                <Label>Age *</Label>
+                <Input required type="number" min="1" max="120" value={formData.age} onChange={e=>setFormData({...formData, age: e.target.value})} placeholder="Age" />
+              </div>
+              <div className="space-y-2">
+                <Label>Gender *</Label>
+                <select 
+                  required
+                  value={formData.gender} 
+                  onChange={e => setFormData({...formData, gender: e.target.value})}
+                  className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                >
+                  <option value="" disabled hidden>Select</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label>Email *</Label>
+                <Input required type="email" value={formData.email} onChange={e=>setFormData({...formData, email: e.target.value})} placeholder="you@email.com" />
+              </div>
+            </div>
+            {/* Address */}
             <div className="space-y-2">
-              <Label>Email Address (Optional)</Label>
-              <Input type="email" value={formData.email} onChange={e=>setFormData({...formData, email: e.target.value})} placeholder="you@example.com" />
+              <Label>Address *</Label>
+              <Input required value={formData.address} onChange={e=>setFormData({...formData, address: e.target.value})} placeholder="Your complete address" />
+            </div>
+            {/* Consultation Type */}
+            <div className="space-y-2">
+              <Label>Consultation Type *</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setFormData({...formData, consultation_type: "online"})}
+                  className={`flex items-center justify-center gap-2 h-11 rounded-xl border-2 text-sm font-medium transition-all duration-200 ${
+                    formData.consultation_type === "online"
+                      ? "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                  }`}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Online Consultation
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({...formData, consultation_type: "walk_in"})}
+                  className={`flex items-center justify-center gap-2 h-11 rounded-xl border-2 text-sm font-medium transition-all duration-200 ${
+                    formData.consultation_type === "walk_in"
+                      ? "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                  }`}
+                >
+                  <MapPin className="h-4 w-4" />
+                  Walk-in Clinic Visit
+                </button>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-5">
               <div className="space-y-2">
                 <Label>Treatment Needed *</Label>
-                <Select required value={formData.treatment} onValueChange={v => setFormData({...formData, treatment: v})}>
-                  <SelectTrigger><SelectValue placeholder="Select Treatment" /></SelectTrigger>
-                  <SelectContent>
-                    {TREATMENT_OPTIONS.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <select 
+                  required 
+                  value={formData.treatment} 
+                  onChange={e => setFormData({...formData, treatment: e.target.value})}
+                  className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="" disabled hidden>Select Treatment</option>
+                  {TREATMENT_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+                </select>
               </div>
               <div className="space-y-2">
-                <Label>Preferred Date</Label>
-                <Input type="date" value={formData.preferred_date} onChange={e=>setFormData({...formData, preferred_date: e.target.value})} />
+                <Label>Preferred Date *</Label>
+                <Input required type="date" value={formData.preferred_date} onChange={e=>setFormData({...formData, preferred_date: e.target.value})} />
               </div>
             </div>
             <div className="space-y-2">

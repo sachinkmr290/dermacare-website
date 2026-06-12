@@ -28,6 +28,10 @@ class AppointmentCreate(BaseModel):
     full_name: str = Field(..., min_length=2, max_length=120)
     phone: str = Field(..., min_length=7, max_length=20)
     email: Optional[EmailStr] = None
+    age: int
+    gender: str
+    address: Optional[str] = None
+    consultation_type: str = Field(default="online")  # "online" or "walk_in"
     treatment: str = Field(..., min_length=2, max_length=120)
     preferred_date: Optional[str] = None
     message: Optional[str] = Field(default="", max_length=2000)
@@ -39,6 +43,10 @@ class Appointment(BaseModel):
     full_name: str
     phone: str
     email: Optional[str] = None
+    age: int
+    gender: str
+    address: Optional[str] = None
+    consultation_type: str = "online"
     treatment: str
     preferred_date: Optional[str] = None
     message: Optional[str] = ""
@@ -71,33 +79,48 @@ async def create_appointment(payload: AppointmentCreate):
     # Also save to DPMS database
     dpms_db = client["dpms"]
     
-    # 1. Find or create patient in DPMS
-    existing_patient = await dpms_db.patients.find_one({"whatsapp": payload.phone})
+    import re
+    # 1. Find patient in DPMS (Must match BOTH Mobile and Name case-insensitively)
+    existing_patient = None
+    if payload.phone and payload.full_name:
+        escaped_name = re.escape(payload.full_name)
+        existing_patient = await dpms_db.patients.find_one({
+            "whatsapp": payload.phone,
+            "full_name": {"$regex": f"^{escaped_name}$", "$options": "i"}
+        })
+
     if existing_patient:
         patient_id = existing_patient.get("patient_id")
+        source = "Existing Patient Booking"
+        
+        # Update patient type so they show under the appropriate category
+        new_patient_type = "online" if payload.consultation_type == "online" else "offline"
+        if existing_patient.get("patient_type") != new_patient_type:
+            await dpms_db.patients.update_one(
+                {"_id": existing_patient["_id"]},
+                {"$set": {"patient_type": new_patient_type}}
+            )
     else:
-        patient_id = f"WEB-{str(uuid.uuid4())[:8]}"
-        new_patient = {
-            "patient_id": patient_id,
-            "patient_type": "online",
-            "full_name": payload.full_name,
-            "whatsapp": payload.phone,
-            "email": payload.email,
-            "created_at": datetime.now(timezone.utc).isoformat(),
-            "updated_at": datetime.now(timezone.utc).isoformat(),
-            "visits": []
-        }
-        await dpms_db.patients.insert_one(new_patient)
+        # Do not create patient automatically. Leave patient_id empty so admin can route to registration.
+        patient_id = ""
+        source = "Website"
         
     # 2. Create appointment in DPMS
     dpms_appt = {
         "patient_id": patient_id,
-        "patient_name": payload.full_name, # helper for UI
+        "patient_name": payload.full_name,
+        "phone": payload.phone,
+        "email": payload.email,
+        "age": payload.age,
+        "gender": payload.gender,
+        "address": payload.address,
+        "consultation_type": payload.consultation_type,
         "date_time": payload.preferred_date or "Pending",
         "therapist": "Website Booking",
         "treatment": payload.treatment,
         "message": payload.message,
-        "status": "scheduled",
+        "status": "New",
+        "source": source,
         "created_at": datetime.now(timezone.utc)
     }
     await dpms_db.appointments.insert_one(dpms_appt)

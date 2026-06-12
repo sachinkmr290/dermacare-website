@@ -45,28 +45,28 @@ const Booking = () => {
               <div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap'}}>
                 <div className="form-group" style={{flex: '1 1 200px'}}>
                   <label className="form-label" style={{color: '#e2e8f0'}}>Full Name *</label>
-                  <input type="text" name="name" required value={formData.name} onChange={handleChange} className="form-input" style={{background: 'rgba(255,255,255,0.9)'}} />
+                  <input type="text" name="name" required value={formData.name} onChange={handleChange} className="form-input" style={{background: 'rgba(255,255,255,0.9)', color: '#0f172a'}} />
                 </div>
                 <div className="form-group" style={{flex: '1 1 200px'}}>
                   <label className="form-label" style={{color: '#e2e8f0'}}>Phone Number *</label>
-                  <input type="tel" name="phone" required value={formData.phone} onChange={handleChange} className="form-input" style={{background: 'rgba(255,255,255,0.9)'}} />
+                  <input type="tel" name="phone" required value={formData.phone} onChange={handleChange} className="form-input" style={{background: 'rgba(255,255,255,0.9)', color: '#0f172a'}} />
                 </div>
               </div>
 
               <div style={{display: 'flex', gap: '1rem', flexWrap: 'wrap'}}>
                 <div className="form-group" style={{flex: '1 1 200px'}}>
                   <label className="form-label" style={{color: '#e2e8f0'}}>Email Address</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} className="form-input" style={{background: 'rgba(255,255,255,0.9)'}} />
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} className="form-input" style={{background: 'rgba(255,255,255,0.9)', color: '#0f172a'}} />
                 </div>
                 <div className="form-group" style={{flex: '1 1 200px'}}>
                   <label className="form-label" style={{color: '#e2e8f0'}}>Preferred Date</label>
-                  <input type="date" name="date" value={formData.date} onChange={handleChange} className="form-input" style={{background: 'rgba(255,255,255,0.9)'}} />
+                  <input type="date" name="date" value={formData.date} onChange={handleChange} className="form-input" style={{background: 'rgba(255,255,255,0.9)', color: '#0f172a'}} />
                 </div>
               </div>
 
               <div className="form-group">
                 <label className="form-label" style={{color: '#e2e8f0'}}>Treatment Needed</label>
-                <select name="treatment" value={formData.treatment} onChange={handleChange} className="form-select" style={{background: 'rgba(255,255,255,0.9)'}}>
+                <select name="treatment" value={formData.treatment} onChange={handleChange} className="form-select" style={{background: 'rgba(255,255,255,0.9)', color: '#0f172a'}}>
                   <option value="">Select Treatment...</option>
                   <option value="Hair Fall / Baldness">Hair Fall / Baldness</option>
                   <option value="PRP Therapy">PRP Therapy</option>
@@ -78,7 +78,7 @@ const Booking = () => {
 
               <div className="form-group">
                 <label className="form-label" style={{color: '#e2e8f0'}}>Message (Optional)</label>
-                <textarea name="message" value={formData.message} onChange={handleChange} className="form-textarea" style={{background: 'rgba(255,255,255,0.9)'}}></textarea>
+                <textarea name="message" value={formData.message} onChange={handleChange} className="form-textarea" style={{background: 'rgba(255,255,255,0.9)', color: '#0f172a'}}></textarea>
               </div>
 
               <button type="submit" className="btn btn-primary" style={{width: '100%', padding: '1rem', fontSize: '1.125rem'}}>
