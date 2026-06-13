@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 
-const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"; // unified backend
+const BACKEND_URL = import.meta.env.PROD ? "" : "http://localhost:5000"; // unified backend
 const API = `${BACKEND_URL}/api`;
 
 const PHONE = "7579781961";
