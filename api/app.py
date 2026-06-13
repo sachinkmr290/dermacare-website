@@ -2,10 +2,14 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 from flask_jwt_extended import JWTManager
 import os
+import sys
+
+# Ensure Vercel can find the modules inside the api/ folder
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from dotenv import load_dotenv
 
 load_dotenv()
-
 
 def create_app():
     app = Flask(__name__, static_folder=None)
