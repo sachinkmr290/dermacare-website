@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {
   Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Button, Chip, CircularProgress, Alert
+  Button, Chip, CircularProgress, Alert, TextField
 } from '@mui/material'
 import api from '@/dpms/api'
 import dayjs from 'dayjs'
@@ -10,7 +10,9 @@ import {
   Refresh as RefreshIcon,
   PlayArrow as PlayArrowIcon,
   Cancel as CancelIcon,
-  PersonOff as PersonOffIcon
+  PersonOff as PersonOffIcon,
+  Search as SearchIcon,
+  DeleteOutline as DeleteIcon
 } from '@mui/icons-material'
 
 const STATUS_OPTIONS = ['New', 'Confirmed', 'Consultation Started', 'Completed', 'Cancelled', 'No Show']
@@ -19,6 +21,7 @@ export default function WebsiteAppointments() {
   const [appointments, setAppointments] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [searchTerm, setSearchTerm] = useState('')
   const navigate = useNavigate()
 
   const fetchAppointments = async () => {
@@ -47,6 +50,16 @@ export default function WebsiteAppointments() {
     }
   }
 
+  const deleteAppointment = async (id) => {
+    if (!window.confirm("Are you sure you want to permanently delete this appointment?")) return;
+    try {
+      await api.delete(`/api/appointments/${id}`)
+      setAppointments(appointments.filter(a => a._id !== id))
+    } catch (err) {
+      alert('Failed to delete appointment')
+    }
+  }
+
   const startConsultation = async (appt) => {
     try {
       if (appt.status !== 'Consultation Started') {
@@ -69,13 +82,38 @@ export default function WebsiteAppointments() {
 
   if (loading) return <Box p={4} display="flex" justifyContent="center"><CircularProgress /></Box>
 
+  const filteredAndSortedAppointments = appointments
+    .filter(appt => {
+      const s = searchTerm.toLowerCase();
+      const matchName = (appt.patient_name || '').toLowerCase().includes(s);
+      const matchPhone = (appt.phone || '').toLowerCase().includes(s);
+      return matchName || matchPhone;
+    })
+    .sort((a, b) => {
+      const aDate = a.date_time === 'Pending' ? dayjs('9999-12-31').valueOf() : dayjs(a.date_time).valueOf();
+      const bDate = b.date_time === 'Pending' ? dayjs('9999-12-31').valueOf() : dayjs(b.date_time).valueOf();
+      return aDate - bDate;
+    })
+
   return (
     <Box>
       <Box mb={3} display="flex" justifyContent="space-between" alignItems="center">
         <Typography variant="h5" sx={{ fontWeight: 700, color: '#1e293b' }}>
           🌐 Website Appointments
         </Typography>
-        <Button variant="outlined" onClick={fetchAppointments}>Refresh</Button>
+        <Box display="flex" gap={2}>
+          <TextField
+            size="small"
+            placeholder="Search name or mobile..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            sx={{ width: 250 }}
+            InputProps={{
+              startAdornment: <SearchIcon sx={{ color: 'action.active', mr: 1 }} />
+            }}
+          />
+          <Button variant="outlined" onClick={fetchAppointments}>Refresh</Button>
+        </Box>
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
@@ -94,14 +132,14 @@ export default function WebsiteAppointments() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {appointments.length === 0 ? (
+            {filteredAndSortedAppointments.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} align="center" sx={{ py: 4, color: '#64748b' }}>
-                  No website appointments found
+                  No website appointments found matching your search.
                 </TableCell>
               </TableRow>
             ) : (
-              appointments.map((appt) => (
+              filteredAndSortedAppointments.map((appt) => (
                 <TableRow key={appt._id} hover>
                   <TableCell>
                     <Typography variant="body2">{dayjs(appt.created_at).format('DD MMM YYYY')}</Typography>
@@ -179,6 +217,16 @@ export default function WebsiteAppointments() {
                         title="Cancel Appointment"
                       >
                         <CancelIcon fontSize="small" />
+                      </Button>
+                      <Button 
+                        variant="outlined" 
+                        color="error"
+                        size="small" 
+                        onClick={() => deleteAppointment(appt._id)}
+                        sx={{ textTransform: 'none', borderRadius: 1.5, minWidth: 0, px: 1 }}
+                        title="Delete Appointment"
+                      >
+                        <DeleteIcon fontSize="small" />
                       </Button>
                     </Box>
                   </TableCell>

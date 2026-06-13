@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 
-const BACKEND_URL = "http://localhost:8000"; // fallback if env is missing
+const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"; // unified backend
 const API = `${BACKEND_URL}/api`;
 
 const PHONE = "7579781961";
@@ -588,7 +588,7 @@ function BookingSection() {
     payload.age = parseInt(payload.age, 10);
 
     try {
-      await axios.post(`${API}/appointments`, payload);
+      await axios.post(`${API}/appointments/website`, payload);
       toast.success("Your appointment has been booked successfully.");
       setFormData({ full_name: "", phone: "", email: "", age: "", gender: "", address: "", consultation_type: "online", treatment: "", preferred_date: "", message: "" });
     } catch (err) {
